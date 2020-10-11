@@ -1,0 +1,169 @@
+\documentclass[12pt, a4paper]{article}
+
+\usepackage[czech]{babel}
+\usepackage{lmodern}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage[hidelinks,unicode]{hyperref}
+\usepackage{float}
+\usepackage{listings}
+\usepackage{tikz}
+\usepackage{xcolor}
+\usepackage[final]{pdfpages}
+
+\usepackage{syntax}
+\usepackage{tikz}
+\usepackage{tikz-qtree}
+
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\usetikzlibrary{shapes,positioning,matrix,arrows}
+
+\newcommand{\img}[1]{(viz obr. \ref{#1})}
+
+\definecolor{pblue}{rgb}{0.13,0.13,1}
+\definecolor{pgreen}{rgb}{0,0.5,0}
+\definecolor{pred}{rgb}{0.9,0,0}
+\definecolor{pgrey}{rgb}{0.46,0.45,0.48}
+
+\lstset{frame=tb,
+  language=C,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3
+}
+
+\lstset{language=Java,
+  showspaces=false,
+  showtabs=false,
+  breaklines=true,
+  showstringspaces=false,
+  breakatwhitespace=true,
+  commentstyle=\color{pgreen},
+  keywordstyle=\color{pblue},
+  stringstyle=\color{pred},
+  basicstyle=\ttfamily,
+  moredelim=[il][\textcolor{pgrey}]{$$},
+  moredelim=[is][\textcolor{pgrey}]{\%\%}{\%\%}
+}
+
+\let\oldsection\section
+\renewcommand\section{\clearpage\oldsection}
+
+\begin{document}
+	% this has to be placed here, after document has been created
+	% \counterwithout{lstlisting}{chapter}
+	\renewcommand{\lstlistingname}{Ukázka kódu}
+	\renewcommand{\lstlistlistingname}{Seznam ukázek kódu}
+    \begin{titlepage}
+
+       \centering
+
+       \vspace*{\baselineskip}
+
+       \begin{figure}[H]
+          \centering
+          \includegraphics[width=7cm]{img/fav-logo.jpg}
+       \end{figure}
+
+       \vspace*{1\baselineskip}
+        {\sc 2. domácí úkol z předmětu KIV/FJP}
+       \vspace*{1\baselineskip}
+
+       \vspace{0.75\baselineskip}
+
+       {\LARGE\sc Využití bezkontextových gramatik\\}
+
+       \vspace{4\baselineskip}
+       
+		\vspace{0.5\baselineskip}
+
+       
+       {\sc\Large Stanislav Král \\}
+
+       \vspace{0.5\baselineskip}
+
+       {A20N0091P}
+
+       \vfill
+
+       {\sc Západočeská univerzita v Plzni\\
+       Fakulta aplikovaných věd}
+
+
+    \end{titlepage}
+
+
+    \tableofcontents
+    \pagebreak
+
+
+    
+    \section{Zadání}
+
+\begin{enumerate}
+    \item Sestavte gramatiku popisující jazyk regulárních výrazů (s využitím operací zřetězení (bez operátorů, "\texttt{a}" a "\texttt{b}" se řetězí na "\texttt{ab}"), nebo ("\texttt{a + b}" - jedno nebo druhé, alternativně symbol "\texttt{|}" - v tomto případě pozor na odlišení terminálního symbolu a symbolu pro oddělení pravých stran v BNF), iterace ("\texttt{a*}" - libovolný počet opakování symbolu "\texttt{a}") a závorek které nastavují prioritu ("\texttt{(a + b)*}" je libovolná kombinace "\texttt{a}" a "\texttt{b}", "\texttt{a + b*}" je "\texttt{a}" následováno libovolným počtem "\texttt{b}").
+Abyste se vyhnuli nutnosti pracovat s celou abecedou, použijte zástupný symbol "\texttt{a}" (nebo jiný) pro libovolný nevyhrazený znak ASCII.
+
+    \item Demonstrujte fungování gramatiky na derivačních stromech alespoň 2 slov o délce alespoň 7 znaků. 
+
+\end{enumerate}
+
+    \section{Vypracování}
+
+    \subsection{Sestavená gramatika}
+    Při sestavování této gramatiky jsem vycházel ze cvičení ze dne 5.10.2020, kdy jsem rozšířil gramatiku popisující sčítání čísel o závorky, zřetězení a operátor iterace. 
+
+    \begin{grammar}
+
+        <E> ::= <E> `+' <T> | <ET> | <T>
+        
+        <T> ::= <B> | <F> | <E>
+
+        <B> ::= `('<E>`)' | <a>
+
+        <F> ::= <B>`*' | <T>
+%        <E> ::= <E> `+' <T> | <T>
+%        
+%        <T> ::= <TF> | <F> | <F>`*'
+%
+%        <F> ::= <a> | `('<E>`)'
+    \end{grammar}
+
+\noindent Symbol "a" je zástupný symbol pro libovolný nevyhrazený znak ASCII. Symbol \texttt{<E>} je počátečním symbolem.
+
+Pravidlem \texttt{F -> B*} zajišťuji, že operátor iterace lze použít pouze na závorku nebo jeden terminální symbol \texttt{a}.
+
+\subsection{Ověření funkcionality}
+
+\subsubsection{Derivační strom pro řetězec \texttt{(a + b)* ab*}}
+\begin{tikzpicture}[sibling distance=45pt]
+\tikzset{level distance=35pt}
+\Tree [.E 
+[.E [.T [.F [.B* [.(E) [.E+ [.T [.B [.a ] ] ] ] [.T [.B [.b ] ] ] ] ] ] ]  ] 
+[.T [.E [.E [.F [.B [.a ] ] ] ] [.T [.F [.B* [.b ] ] ] ] ] ]
+]
+\end{tikzpicture}
+
+
+\subsubsection{Derivační strom pro řetězec \texttt{ab*c + (ac)*}}
+\begin{tikzpicture}[sibling distance=45pt]
+\tikzset{level distance=35pt}
+\Tree [.E
+[.E+ [.E [.T [.B [.a ] ] ]  ] [.T [.E [.E [.T [.F [.B* [.b ] ] ] ] ] [.T [.B [.c ] ] ] ] ] ]
+[.T [.F [.B* [.(E) [.E [.T [.B [.a ] ] ] ] [.T [.B [.c ] ] ] ] ] ] ]
+ ]
+\end{tikzpicture}
+
+\end{document}    
