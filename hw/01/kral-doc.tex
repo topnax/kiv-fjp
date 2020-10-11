@@ -1,0 +1,451 @@
+\documentclass[12pt, a4paper]{article}
+
+\usepackage[czech]{babel}
+\usepackage{lmodern}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage[hidelinks,unicode]{hyperref}
+\usepackage{float}
+\usepackage{listings}
+\usepackage{tikz}
+\usepackage{xcolor}
+\usepackage[final]{pdfpages}
+
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\usetikzlibrary{shapes,positioning,matrix,arrows}
+
+\newcommand{\img}[1]{(viz obr. \ref{#1})}
+
+\definecolor{pblue}{rgb}{0.13,0.13,1}
+\definecolor{pgreen}{rgb}{0,0.5,0}
+\definecolor{pred}{rgb}{0.9,0,0}
+\definecolor{pgrey}{rgb}{0.46,0.45,0.48}
+
+\lstset{
+  language=C,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3
+}
+
+\lstset{language=Java,
+  showspaces=false,
+  showtabs=false,
+  breaklines=true,
+  showstringspaces=false,
+  breakatwhitespace=true,
+  commentstyle=\color{pgreen},
+  keywordstyle=\color{pblue},
+  stringstyle=\color{pred},
+  basicstyle=\ttfamily,
+  moredelim=[il][\textcolor{pgrey}]{$$},
+  moredelim=[is][\textcolor{pgrey}]{\%\%}{\%\%}
+}
+
+\let\oldsection\section
+\renewcommand\section{\clearpage\oldsection}
+
+\begin{document}
+	% this has to be placed here, after document has been created
+	% \counterwithout{lstlisting}{chapter}
+	\renewcommand{\lstlistingname}{Ukázka kódu}
+	\renewcommand{\lstlistlistingname}{Seznam ukázek kódu}
+    \begin{titlepage}
+
+       \centering
+
+       \vspace*{\baselineskip}
+
+       \begin{figure}[H]
+          \centering
+          \includegraphics[width=7cm]{img/fav-logo.jpg}
+       \end{figure}
+
+
+
+       \vspace{0.75\baselineskip}
+
+       {\LARGE\sc Konstrukce NKA a DKA\\}
+
+       \vspace{4\baselineskip}
+       
+		\vspace{0.5\baselineskip}
+
+       
+       {\sc\Large Stanislav Král \\}
+
+       \vspace{0.5\baselineskip}
+
+       {A20N0091P}
+
+       \vfill
+
+       {\sc Západočeská univerzita v Plzni\\
+       Fakulta aplikovaných věd}
+
+
+    \end{titlepage}
+
+
+    %\tableofcontents
+    %\pagebreak
+
+
+    \section{Zadání}
+    \begin{enumerate}
+        \item Převeďte gramatiku na \textbf{regulární tvar} a sestavte odpovídající \textbf{nedeterministický konečný automat}. Najděte odpovídající \textbf{deterministický konečný automat}.
+
+    \begin{lstlisting}
+                    S --> aS | aA | bB
+                    A --> abA | bcB | e
+                    B --> aC | abc
+                    C --> aS | ab | e
+    \end{lstlisting}
+
+    symbol $e$ chápejte jako prázdné slovo ("nic")
+
+        \item Sestavte \textbf{deterministický konečný automat}, rozpoznávající binární čísla dělitelná osmi. Vstupem je posloupnost znaků 1 a 0, od nejvyššího řádu (= zleva doprava). Číslo dělitelné osmi převede automat do koncového stavu, pro jakoukoliv jinou posloupnost automat čeká na další vstup (nepozná jestli číslo skončilo, dokud není dělitelné osmi; nemá chybové stavy pro ostatní řetězce). Automat zapište tabulkou a vysvětlete / ukažte že funguje pro všechny řetězce jedniček a nul.
+   
+    \end{enumerate} 
+
+    \section{Vypracování}
+        \subsection{Převod gramatiky}
+Nejdříve přepíšeme pravidla, která jsou již v regulárním tvaru:
+\begin{lstlisting}
+S -> aS | aA | bB
+A -> e
+B -> aC
+C -> aS | e
+\end{lstlisting}	
+Poté upravíme pravidla typu \texttt{X --> q1q2...qNY}:
+
+\begin{lstlisting}
+A  -> aA1 | bA2
+A1 -> bA
+A2 -> cB
+\end{lstlisting}	
+Následně upravíme pravidla typu \texttt{X --> q1q2...qNY}:
+
+\begin{lstlisting}
+B  -> aB1
+B1 -> bB2
+B2 -> cB3
+B3 -> e
+
+C  -> aC1
+C1 -> bC2
+C2 -> e
+\end{lstlisting}	
+Výsledná gramatika v regulárním tvaru je tedy:
+
+\begin{lstlisting}
+S  -> aS | aA | bB
+A  -> aA1 | bA2 | e
+A1 -> bA
+A2 -> cB
+B  -> aC | aB1
+B1 -> bB2
+B2 -> cB3
+B3 -> e
+C  -> aS | aC1 | e
+C1 -> bC2
+C2 -> e
+\end{lstlisting}
+\clearpage
+\noindent Sestavený nedeterministický konečný automat odpovídající této gramatice:
+
+\begin{center}
+\begin{tikzpicture}[scale=0.2]
+\tikzstyle{every node}+=[inner sep=0pt]
+\draw [black] (9.4,-10) circle (3);
+\draw (9.4,-10) node {$S$};
+\draw [black] (21.1,-10) circle (3);
+\draw (21.1,-10) node {$A$};
+\draw [black] (21.1,-10) circle (2.4);
+\draw [black] (33.6,-10) circle (3);
+\draw (33.6,-10) node {$A1$};
+\draw [black] (33.6,-20.7) circle (3);
+\draw (33.6,-20.7) node {$A2$};
+\draw [black] (21.1,-20.7) circle (3);
+\draw (21.1,-20.7) node {$B$};
+\draw [black] (21.1,-32.7) circle (3);
+\draw (21.1,-32.7) node {$B1$};
+\draw [black] (21.1,-44.7) circle (3);
+\draw (21.1,-44.7) node {$B2$};
+\draw [black] (33.6,-32.7) circle (3);
+\draw (33.6,-32.7) node {$C$};
+\draw [black] (33.6,-32.7) circle (2.4);
+\draw [black] (45.5,-32.7) circle (3);
+\draw (45.5,-32.7) node {$C1$};
+\draw [black] (57.6,-32.7) circle (3);
+\draw (57.6,-32.7) node {$C2$};
+\draw [black] (57.6,-32.7) circle (2.4);
+\draw [black] (21.1,-55.8) circle (3);
+\draw (21.1,-55.8) node {$B3$};
+\draw [black] (21.1,-55.8) circle (2.4);
+\draw [black] (8.077,-7.32) arc (234:-54:2.25);
+\draw (9.4,-2.75) node [above] {$a$};
+\fill [black] (10.72,-7.32) -- (11.6,-6.97) -- (10.79,-6.38);
+\draw [black] (12.4,-10) -- (18.1,-10);
+\fill [black] (18.1,-10) -- (17.3,-9.5) -- (17.3,-10.5);
+\draw (15.25,-10.5) node [below] {$a$};
+\draw [black] (30.8,-11.061) arc (-75.48674:-104.51326:13.768);
+\fill [black] (30.8,-11.06) -- (29.9,-10.78) -- (30.15,-11.75);
+\draw (27.35,-12) node [below] {$a$};
+\draw [black] (23.843,-8.804) arc (106.57058:73.42942:12.296);
+\fill [black] (23.84,-8.8) -- (24.75,-9.05) -- (24.47,-8.1);
+\draw (27.35,-7.79) node [above] {$b$};
+\draw [black] (23.38,-11.95) -- (31.32,-18.75);
+\fill [black] (31.32,-18.75) -- (31.04,-17.85) -- (30.39,-18.61);
+\draw (26.2,-15.84) node [below] {$b$};
+\draw [black] (11.61,-12.02) -- (18.89,-18.68);
+\fill [black] (18.89,-18.68) -- (18.63,-17.77) -- (17.96,-18.5);
+\draw (14.1,-15.84) node [below] {$b$};
+\draw [black] (30.6,-20.7) -- (24.1,-20.7);
+\fill [black] (24.1,-20.7) -- (24.9,-21.2) -- (24.9,-20.2);
+\draw (27.35,-20.2) node [above] {$c$};
+\draw [black] (21.1,-23.7) -- (21.1,-29.7);
+\fill [black] (21.1,-29.7) -- (21.6,-28.9) -- (20.6,-28.9);
+\draw (20.6,-26.7) node [left] {$a$};
+\draw [black] (21.1,-35.7) -- (21.1,-41.7);
+\fill [black] (21.1,-41.7) -- (21.6,-40.9) -- (20.6,-40.9);
+\draw (20.6,-38.7) node [left] {$b$};
+\draw [black] (23.26,-22.78) -- (31.44,-30.62);
+\fill [black] (31.44,-30.62) -- (31.2,-29.71) -- (30.51,-30.43);
+\draw (26.24,-27.18) node [below] {$a$};
+\draw [black] (31.186,-34.474) arc (-58.8539:-207.48238:16.663);
+\fill [black] (7.78,-12.52) -- (6.97,-13) -- (7.86,-13.46);
+\draw (10.05,-32.85) node [below] {$a$};
+\draw [black] (2.8,-10) -- (6.4,-10);
+\fill [black] (6.4,-10) -- (5.6,-9.5) -- (5.6,-10.5);
+\draw [black] (36.6,-32.7) -- (42.5,-32.7);
+\fill [black] (42.5,-32.7) -- (41.7,-32.2) -- (41.7,-33.2);
+\draw (39.55,-33.2) node [below] {$a$};
+\draw [black] (48.5,-32.7) -- (54.6,-32.7);
+\fill [black] (54.6,-32.7) -- (53.8,-32.2) -- (53.8,-33.2);
+\draw (51.55,-33.2) node [below] {$b$};
+\draw [black] (21.1,-47.7) -- (21.1,-52.8);
+\fill [black] (21.1,-52.8) -- (21.6,-52) -- (20.6,-52);
+\draw (20.6,-50.25) node [left] {$c$};
+\end{tikzpicture}
+\end{center}
+\clearpage
+\noindent Předchozí NKA převedený na DKA:
+
+\begin{center}
+\begin{tikzpicture}[scale=0.2]
+\tikzstyle{every node}+=[inner sep=0pt]
+\draw [black] (11.9,-10.8) circle (3);
+\draw (11.9,-10.8) node {$1$};
+\draw [black] (24,-10.8) circle (3);
+\draw (24,-10.8) node {$2$};
+\draw [black] (24,-10.8) circle (2.4);
+\draw [black] (3.9,-30.7) circle (3);
+\draw (3.9,-30.7) node {$3$};
+\draw [black] (11.9,-36) circle (3);
+\draw (11.9,-36) node {$6$};
+\draw [black] (11.9,-36) circle (2.4);
+\draw [black] (40,-10.2) circle (3);
+\draw (40,-10.2) node {$4$};
+\draw [black] (40,-10.2) circle (2.4);
+\draw [black] (32.7,-4.2) circle (3);
+\draw (32.7,-4.2) node {$5$};
+\draw [black] (41.4,-24.2) circle (3);
+\draw (41.4,-24.2) node {$7$};
+\draw [black] (41.4,-24.2) circle (2.4);
+\draw [black] (24.6,-44.3) circle (3);
+\draw (24.6,-44.3) node {$8$};
+\draw [black] (46,-36) circle (3);
+\draw (46,-36) node {$9$};
+\draw [black] (53,-24.2) circle (3);
+\draw (53,-24.2) node {$10$};
+\draw [black] (53,-24.2) circle (2.4);
+\draw [black] (53.8,-11.5) circle (3);
+\draw (53.8,-11.5) node {$11$};
+\draw [black] (24.6,-55.1) circle (3);
+\draw (24.6,-55.1) node {$12$};
+\draw [black] (24.6,-55.1) circle (2.4);
+\draw [black] (46,-55.1) circle (3);
+\draw (46,-55.1) node {$13$};
+\draw [black] (46,-55.1) circle (2.4);
+\draw [black] (63.6,-24.2) circle (3);
+\draw (63.6,-24.2) node {$14$};
+\draw [black] (63.6,-24.2) circle (2.4);
+\draw [black] (72.9,-30) circle (3);
+\draw (72.9,-30) node {$15$};
+\draw [black] (74.2,-14.1) circle (3);
+\draw (74.2,-14.1) node {$16$};
+\draw [black] (74.2,-14.1) circle (2.4);
+\draw [black] (5.8,-10.8) -- (8.9,-10.8);
+\fill [black] (8.9,-10.8) -- (8.1,-10.3) -- (8.1,-11.3);
+\draw [black] (14.9,-10.8) -- (21,-10.8);
+\fill [black] (21,-10.8) -- (20.2,-10.3) -- (20.2,-11.3);
+\draw (17.95,-11.3) node [below] {$a$};
+\draw [black] (10.78,-13.58) -- (5.02,-27.92);
+\fill [black] (5.02,-27.92) -- (5.78,-27.36) -- (4.85,-26.99);
+\draw (7.15,-19.86) node [left] {$b$};
+\draw [black] (6.4,-32.36) -- (9.4,-34.34);
+\fill [black] (9.4,-34.34) -- (9.01,-33.48) -- (8.46,-34.32);
+\draw (6.8,-33.85) node [below] {$a$};
+\draw [black] (27,-10.69) -- (37,-10.31);
+\fill [black] (37,-10.31) -- (36.18,-9.84) -- (36.22,-10.84);
+\draw (32.03,-11.04) node [below] {$a$};
+\draw [black] (26.39,-8.99) -- (30.31,-6.01);
+\fill [black] (30.31,-6.01) -- (29.37,-6.1) -- (29.97,-6.9);
+\draw (29.49,-8) node [below] {$b$};
+\draw [black] (42.495,-8.555) arc (151.12502:-136.87498:2.25);
+\draw (47.37,-9.23) node [right] {$a$};
+\fill [black] (42.82,-11.18) -- (43.28,-12) -- (43.77,-11.13);
+\draw [black] (40.3,-13.19) -- (41.1,-21.21);
+\fill [black] (41.1,-21.21) -- (41.52,-20.37) -- (40.52,-20.47);
+\draw (41.34,-17.11) node [right] {$b$};
+\draw [black] (33.625,-7.052) arc (14.28055:-80.65699:23.231);
+\fill [black] (14.88,-35.71) -- (15.75,-36.07) -- (15.59,-35.08);
+\draw (31.17,-26.82) node [right] {$a$};
+\draw [black] (2.557,-28.021) arc (-157.67437:-297.0889:19.983);
+\fill [black] (2.56,-28.02) -- (2.72,-27.09) -- (1.79,-27.47);
+\draw (6.44,-5.24) node [above] {$c$};
+\draw [black] (14.41,-37.64) -- (22.09,-42.66);
+\fill [black] (22.09,-42.66) -- (21.69,-41.8) -- (21.15,-42.64);
+\draw (17.15,-40.65) node [below] {$a$};
+\draw [black] (14.9,-36) -- (43,-36);
+\fill [black] (43,-36) -- (42.2,-35.5) -- (42.2,-36.5);
+\draw (28.95,-36.5) node [below] {$b$};
+\draw [black] (44.4,-24.2) -- (50,-24.2);
+\fill [black] (50,-24.2) -- (49.2,-23.7) -- (49.2,-24.7);
+\draw (47.2,-24.7) node [below] {$a$};
+\draw [black] (43.5,-22.05) -- (51.7,-13.65);
+\fill [black] (51.7,-13.65) -- (50.79,-13.87) -- (51.5,-14.57);
+\draw (48.13,-19.32) node [right] {$b$};
+\draw [black] (6.556,-29.306) arc (116.20502:83.46211:57.385);
+\fill [black] (6.56,-29.31) -- (7.49,-29.4) -- (7.05,-28.5);
+\draw (21.6,-23.65) node [above] {$c$};
+\draw [black] (24.55,-41.3) -- (24.05,-13.8);
+\fill [black] (24.05,-13.8) -- (23.57,-14.61) -- (24.57,-14.59);
+\draw (24.83,-27.55) node [right] {$a$};
+\draw [black] (22.526,-52.971) arc (-149.20139:-210.79861:6.388);
+\fill [black] (22.53,-52.97) -- (22.55,-52.03) -- (21.69,-52.54);
+\draw (21.12,-49.7) node [left] {$b$};
+\draw [black] (46,-39) -- (46,-52.1);
+\fill [black] (46,-52.1) -- (46.5,-51.3) -- (45.5,-51.3);
+\draw (45.5,-45.55) node [left] {$b$};
+\draw [black] (50.55,-25.93) -- (27.05,-42.57);
+\fill [black] (27.05,-42.57) -- (27.99,-42.51) -- (27.41,-41.7);
+\draw (37.7,-33.75) node [above] {$a$};
+\draw [black] (56,-24.2) -- (60.6,-24.2);
+\fill [black] (60.6,-24.2) -- (59.8,-23.7) -- (59.8,-24.7);
+\draw (58.3,-24.7) node [below] {$b$};
+\draw [black] (51,-12.58) -- (6.7,-29.62);
+\fill [black] (6.7,-29.62) -- (7.63,-29.8) -- (7.27,-28.87);
+\draw (27.85,-20.58) node [above] {$c$};
+\draw [black] (26.537,-46.558) arc (27.84583:-27.84583:6.726);
+\fill [black] (26.54,-46.56) -- (26.47,-47.5) -- (27.35,-47.03);
+\draw (27.82,-49.7) node [right] {$a$};
+\draw [black] (66.15,-25.79) -- (70.35,-28.41);
+\fill [black] (70.35,-28.41) -- (69.94,-27.56) -- (69.41,-28.41);
+\draw (67.15,-27.6) node [below] {$a$};
+\draw [black] (56.599,-10.47) arc (99.55212:-24.24072:8.078);
+\fill [black] (56.6,-10.47) -- (57.47,-10.83) -- (57.31,-9.84);
+\draw (64.91,-12.09) node [right] {$b$};
+\draw [black] (62.12,-26.81) -- (47.48,-52.49);
+\fill [black] (47.48,-52.49) -- (48.32,-52.05) -- (47.45,-51.55);
+\draw (54.14,-38.43) node [left] {$c$};
+\draw [black] (75.534,-16.78) arc (19.86658:-29.21491:13.036);
+\fill [black] (75.53,-16.78) -- (75.34,-17.7) -- (76.28,-17.36);
+\draw (76.88,-22.33) node [right] {$b$};
+\draw [black] (71.379,-27.424) arc (-156.72177:-212.62655:11.803);
+\fill [black] (71.38,-27.42) -- (71.52,-26.49) -- (70.6,-26.89);
+\draw (69.84,-21.74) node [left] {$a$};
+\draw [black] (54.625,-8.627) arc (155.61695:9.85656:10.283);
+\fill [black] (54.63,-8.63) -- (55.41,-8.1) -- (54.5,-7.69);
+\draw (65.62,-2.07) node [above] {$b$};
+\end{tikzpicture}
+\end{center}
+
+
+
+        \subsection{DKA rozpoznávající čísla dělitelná 8}
+Při sledování čísel dělitelných 8 lze pozorovat, že poslední tři nejméně významné bity takových čísel jsou vždy nuly. 
+
+\begin{lstlisting}
+    8 -> 1000
+    16 -> 10000
+    24 -> 11000
+    32 -> 100000
+    ...
+    128 -> 10000000
+    136 -> 10001000
+\end{lstlisting}
+
+Stačí tedy navrhnout DKA, který bude akceptovat řetězce končící třemi po sobě jdoucími znaky \texttt{0}. V případě znaku \texttt{1} se vrátí do počátečního stavu.
+\clearpage
+Navržený automat se skládá celkem ze čtyř stavů, přičemž počátečním stavem je stav \texttt{S} a stav \texttt{3Z} je stavem konečným:
+
+\begin{center}
+\begin{tikzpicture}[scale=0.2]
+\tikzstyle{every node}+=[inner sep=0pt]
+\draw [black] (15.8,-24) circle (3);
+\draw (15.8,-24) node {$S$};
+\draw [black] (27.8,-24) circle (3);
+\draw (27.8,-24) node {$1Z$};
+\draw [black] (39.7,-24) circle (3);
+\draw (39.7,-24) node {$2Z$};
+\draw [black] (51.4,-24) circle (3);
+\draw (51.4,-24) node {$3Z$};
+\draw [black] (51.4,-24) circle (2.4);
+\draw [black] (25.357,-25.715) arc (-65.10197:-114.89803:8.45);
+\fill [black] (18.24,-25.71) -- (18.76,-26.5) -- (19.18,-25.6);
+\draw (21.8,-27) node [below] {$1$};
+\draw [black] (18.353,-22.45) arc (111.95175:68.04825:9.221);
+\fill [black] (25.25,-22.45) -- (24.69,-21.69) -- (24.32,-22.61);
+\draw (21.8,-21.28) node [above] {$0$};
+\draw [black] (17.124,-21.316) arc (146.9559:33.0441:12.676);
+\fill [black] (17.12,-21.32) -- (17.98,-20.92) -- (17.14,-20.37);
+\draw (27.75,-15.05) node [above] {$1$};
+\draw [black] (30.8,-24) -- (36.7,-24);
+\fill [black] (36.7,-24) -- (35.9,-23.5) -- (35.9,-24.5);
+\draw (33.75,-24.5) node [below] {$0$};
+\draw [black] (42.7,-24) -- (48.4,-24);
+\fill [black] (48.4,-24) -- (47.6,-23.5) -- (47.6,-24.5);
+\draw (45.55,-24.5) node [below] {$0$};
+\draw [black] (13.12,-25.323) arc (-36:-324:2.25);
+\draw (8.55,-24) node [left] {$1$};
+\fill [black] (13.12,-22.68) -- (12.77,-21.8) -- (12.18,-22.61);
+\draw [black] (49.774,-26.518) arc (-37.09515:-142.90485:20.277);
+\fill [black] (17.43,-26.52) -- (17.51,-27.46) -- (18.31,-26.85);
+\draw (33.6,-35.07) node [below] {$1$};
+\draw [black] (50.077,-21.32) arc (234:-54:2.25);
+\draw (51.4,-16.75) node [above] {$0$};
+\fill [black] (52.72,-21.32) -- (53.6,-20.97) -- (52.79,-20.38);
+\end{tikzpicture}
+\end{center}
+
+\noindent Navržený DKA reprezentovaný tabulkou:
+\begin{table}[!h]
+\begin{tabular}{llll}
+\hline
+\multicolumn{1}{|l|}{---}         & \multicolumn{1}{l|}{\textbf{0}} & \multicolumn{1}{l|}{\textbf{1}} & \multicolumn{1}{l|}{\textbf{in/out}} \\ \hline
+\multicolumn{1}{|l|}{\textbf{S}}  & \multicolumn{1}{l|}{1Z}         & \multicolumn{1}{l|}{S}          & \multicolumn{1}{l|}{\textit{in}}     \\ \hline
+\multicolumn{1}{|l|}{\textbf{1Z}} & \multicolumn{1}{l|}{2Z}         & \multicolumn{1}{l|}{S}          & \multicolumn{1}{l|}{}                \\ \hline
+\multicolumn{1}{|l|}{\textbf{2Z}} & \multicolumn{1}{l|}{3Z}         & \multicolumn{1}{l|}{S}          & \multicolumn{1}{l|}{}                \\ \hline
+\multicolumn{1}{|l|}{\textbf{3Z}} & \multicolumn{1}{l|}{}           & \multicolumn{1}{l|}{S}          & \multicolumn{1}{l|}{\textit{out}}    \\ \hline
+                                  &                                 &                                 &                                     
+\end{tabular}
+\end{table}
+
+	
+	
+
+\end{document}    
