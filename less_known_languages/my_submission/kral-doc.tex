@@ -1,0 +1,134 @@
+\documentclass[12pt, a4paper]{article}
+
+\usepackage[czech]{babel}
+\usepackage{lmodern}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage[hidelinks,unicode]{hyperref}
+\usepackage{float}
+\usepackage{listings}
+\usepackage{tikz}
+\usepackage{xcolor}
+\usepackage[final]{pdfpages}
+
+\usepackage{syntax}
+\usepackage{tikz}
+\usepackage{tikz-qtree}
+
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\usetikzlibrary{shapes,positioning,matrix,arrows}
+
+\newcommand{\img}[1]{(viz obr. \ref{#1})}
+
+\definecolor{pblue}{rgb}{0.13,0.13,1}
+\definecolor{pgreen}{rgb}{0,0.5,0}
+\definecolor{pred}{rgb}{0.9,0,0}
+\definecolor{pgrey}{rgb}{0.46,0.45,0.48}
+
+\lstset{frame=tb,
+  language=C,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3
+}
+
+\lstset{language=Java,
+  showspaces=false,
+  showtabs=false,
+  breaklines=true,
+  showstringspaces=false,
+  breakatwhitespace=true,
+  commentstyle=\color{pgreen},
+  keywordstyle=\color{pblue},
+  stringstyle=\color{pred},
+  basicstyle=\ttfamily,
+  moredelim=[il][\textcolor{pgrey}]{$$},
+  moredelim=[is][\textcolor{pgrey}]{\%\%}{\%\%}
+}
+
+\let\oldsection\section
+\renewcommand\section{\clearpage\oldsection}
+
+\begin{document}
+	% this has to be placed here, after document has been created
+	% \counterwithout{lstlisting}{chapter}
+	\renewcommand{\lstlistingname}{Ukázka kódu}
+	\renewcommand{\lstlistlistingname}{Seznam ukázek kódu}
+    \begin{titlepage}
+
+       \centering
+
+       \vspace*{\baselineskip}
+
+       \begin{figure}[H]
+          \centering
+          \includegraphics[width=7cm]{img/fav-logo.jpg}
+       \end{figure}
+
+       \vspace*{1\baselineskip}
+        {\sc KIV/FJP - Workshop \#1}
+       \vspace*{1\baselineskip}
+
+       \vspace{0.75\baselineskip}
+
+       {\LARGE\sc Méně známé jazyky - popis a analýza jazyka\\}
+
+       \vspace{0.75\baselineskip}
+
+       {\LARGE\sc Go\\}
+
+       \vspace{4\baselineskip}
+       
+		\vspace{0.5\baselineskip}
+
+       
+       {\sc\Large Stanislav Král \\}
+
+       \vspace{0.5\baselineskip}
+
+       {A20N0091P}
+
+       \vfill
+
+       {\sc Západočeská univerzita v Plzni\\
+       Fakulta aplikovaných věd}
+
+
+    \end{titlepage}
+
+
+    \tableofcontents
+    \pagebreak
+    
+    \section{Vznik jazyka Go}
+
+ V době, kdy softwarové služby a produkty společnosti Google začínají být využívány stále větším počtem uživatelů, používají backendoví vývojáři této společnosti v největší míře programovací jazyk C++. Mezi problémy, se kterým se musí denně potýkat, jsou dlouhé časy sestavení projektů a roustoucí nepřehlednost velkých projektů.
+
+Koncem roku 2006 začíná tým vývojářů z Google, spolu s Kenem Thompsonem a Robertem Griesemerem, uvažovat nad vytvořením nového programovacího jazyka Go.  Hlavní myšlenkou není vytvořit jazyk s velkým množstvím nových funkcí a konstrukcí, ale vytvořit jazyk smysluplně konsolidující to nejlepší z ostatních populárních programovacích jazyků. Inspiraci hledají v jazycích Algol, C, C++, Newsqueak, Python nebo také například v jazyce Smalltalk, a řídí se pravidlem, že by Go měl být co nejjednodušší, a proto neobsahuje například následující konstrukce:
+
+\begin{itemize}
+    \item hlavičkové soubory
+    \item třídy
+    \item dědičnost 
+    \item konstruktory
+    \item ukazatelovou aritmetiku
+    \item výjimky
+    \item globální proměnné
+\end{itemize}
+
+Vlastností, která byla při návrhu tohoto jazyka považována za velmi důležitou, byla schopnost jednoduše a elegantně definovat souběžné a paralelní programy. Velkou inspiraci a hlavní myšlenku autoři jazkya Go brali v unixových rourách.
+
+V roce 2009 byl zdrojový kód jazyka Go uvolněn jako open-source, a v roce 2012 byla vydána verze 1.0. S tímto vydáním se začal klást důraz na využití a implementaci tohoto jazyka v projektech Google.
+\end{document}    
