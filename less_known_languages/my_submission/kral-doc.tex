@@ -114,9 +114,9 @@
     
     \section{Vznik jazyka Go}
 
- V době, kdy softwarové služby a produkty společnosti Google začínají být využívány stále větším počtem uživatelů, používají backendoví vývojáři této společnosti v největší míře programovací jazyk C++. Mezi problémy, se kterým se musí denně potýkat, jsou dlouhé časy sestavení projektů a roustoucí nepřehlednost velkých projektů.
+ V době, kdy softwarové služby a produkty společnosti Google začínají být využívány stále větším počtem uživatelů, používají backendoví vývojáři této společnosti v největší míře programovací jazyk C++. Mezi problémy, se kterými se musí denně potýkat, jsou dlouhé časy sestavení projektů a roustoucí nepřehlednost velkých projektů.
 
-Koncem roku 2006 začíná tým vývojářů z Google, spolu s Kenem Thompsonem a Robertem Griesemerem, uvažovat nad vytvořením nového programovacího jazyka Go.  Hlavní myšlenkou není vytvořit jazyk s velkým množstvím nových funkcí a konstrukcí, ale vytvořit jazyk smysluplně konsolidující to nejlepší z ostatních populárních programovacích jazyků. Inspiraci hledají v jazycích Algol, C, C++, Newsqueak, Python nebo také například v jazyce Smalltalk, a řídí se pravidlem, že by Go měl být co nejjednodušší, a proto neobsahuje například následující konstrukce:
+Koncem roku 2006 začíná tým vývojářů z Google, spolu s Kenem Thompsonem a Robertem Griesemerem, uvažovat nad vytvořením nového programovacího jazyka Go.  Hlavní myšlenkou není vytvořit jazyk s velkým množstvím nových funkcí a konstrukcí, ale vytvořit jazyk smysluplně konsolidující to nejlepší z ostatních populárních programovacích jazyků. Inspiraci hledají v jazycích Algol, C, C++, Newsqueak, Python nebo také například v jazyce Smalltalk, a řídí se pravidlem, že by Go měl být co nejjednodušší, a proto neobsahuje například následující konstrukce, které jsou v jiných jazycích zcela běžné:
 
 \begin{itemize}
     \item hlavičkové soubory
@@ -131,4 +131,21 @@ Koncem roku 2006 začíná tým vývojářů z Google, spolu s Kenem Thompsonem 
 Vlastností, která byla při návrhu tohoto jazyka považována za velmi důležitou, byla schopnost jednoduše a elegantně definovat souběžné a paralelní programy. Velkou inspiraci a hlavní myšlenku autoři jazkya Go brali v unixových rourách.
 
 V roce 2009 byl zdrojový kód jazyka Go uvolněn jako open-source, a v roce 2012 byla vydána verze 1.0. S tímto vydáním se začal klást důraz na využití a implementaci tohoto jazyka v projektech Google.
+
+\section{Charakteristiky jazyka}
+
+\subsection{Formální popis jazyka}
+Gramatika popisující jazyk Go v rozšířené BNF formě je následující:
+
+\begin{lstlisting}
+Production  = production_name "=" [ Expression ] "." .
+Expression  = Alternative { "|" Alternative } .
+Alternative = Term { Term } .
+Term        = production_name | token [ "..." token ] | Group | Option | Repetition .
+Group       = "(" Expression ")" .
+Option      = "[" Expression "]" .
+Repetition  = "{" Expression "}" .
+
+\end{lstlisting}
+
 \end{document}    
