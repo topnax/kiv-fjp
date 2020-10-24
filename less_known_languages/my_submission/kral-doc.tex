@@ -141,11 +141,197 @@ Gramatika popisující jazyk Go v rozšířené BNF formě je následující:
 Production  = production_name "=" [ Expression ] "." .
 Expression  = Alternative { "|" Alternative } .
 Alternative = Term { Term } .
-Term        = production_name | token [ "..." token ] | Group | Option | Repetition .
+Term        = production_name 
+                | token [ "..." token ] 
+                | Group 
+                | Option 
+                | Repetition .
 Group       = "(" Expression ")" .
 Option      = "[" Expression "]" .
 Repetition  = "{" Expression "}" .
 
 \end{lstlisting}
+
+\subsection{Deklarace typu proměnné}
+Explicitní deklarace typu proměnné není v jazyce Go nutná, jelikož překladač si typ proměnné doplní sám.
+
+
+\begin{lstlisting}[caption={Typ proměnné nemusí být v kódu explicitně deklarován}]
+i := 42           // i is int
+f := 3.142        // f is float64
+g := 0.867 + 0.5i // g is complex128
+\end{lstlisting}
+
+Pokud opravdu chceme typ explicitně deklarovat, tak je možné použít následující syntaxi:
+
+\begin{lstlisting}[caption={Explicitní deklarace typu proměnné}, captionpos=b]
+var i int = 0
+var text string = "Hello Golang World!"
+\end{lstlisting}
+
+
+\subsection{Definice struktur a OOP}
+V jazyce Go není podporován koncept tříd a dědičnosti, ale stejně jako například v jazyce C lze definovat struktury:
+
+\begin{lstlisting}[caption={"Definice struktur"}, captionpos=b]
+type person struct {
+    name string
+    age  int
+}
+
+p := person{name: "Foo", age: 50}
+\end{lstlisting}
+
+Avšak metody zde jsou implementovány jako funkce u kterých je kromě jména, parametrů a typů návratových hodnot, specifikován i takzvaný \textit{receiver} (příjemce), což je v nějaký datový typ (nejčastěji struktura), nad kterým je tato metoda volána. Příjemcem může být samozřejmě i ukazatel na datový typ.
+
+\begin{lstlisting}[caption={Volání metod nad strukturami}, captionpos=b]
+
+func (p* person) haveBirthday() {
+    p.age++
+}
+
+func (p person) isAdult() bool {
+    return p.age >= 18
+}
+
+p := person{name: "Foo", age: 17}
+p.isAdult()         // false
+p.haveBirthday()    // increases the age to 18
+p.isAdult()         // true
+\end{lstlisting}
+
+\subsection{Definice a implementace rozhraní}
+Rozhraní v jazyku Go byla inspirována protokoly, s nimiž se lze setkat například v programovacím jazyku Smalltalk. Jedná se o specifikaci metod, které jsou společné pro entity s nějakou sdílenou vlastností nebo vlastnostmi.
+
+\begin{lstlisting}[caption={Definice rozhraní}, captionpos=b]
+type geometry interface {
+    area() float64
+    perim() float64
+}
+\end{lstlisting}
+
+Na rozdíl od např. jazyku Java se v Go rozhraní implementuje implicitně. Pokud lze nad nějakou strukturou volat stejné metody, jako ty, které jsou definované v nějakém rozhraní, tak tato struktura automaticky dané rozhraní implementuje, a není tedy tak nutné explicitně danou strukturou označit např. klíčovým slovem \texttt{implements}.
+
+
+\begin{lstlisting}[caption={Implementace \texttt{geometry}}, captionpos=b]
+func (r rect) area() float64 {
+    return r.width * r.height
+}
+func (r rect) perim() float64 {
+    return 2*r.width + 2*r.height
+}
+
+func (c circle) area() float64 {
+    return math.Pi * c.radius * c.radius
+}
+func (c circle) perim() float64 {
+    return 2 * math.Pi * c.radius
+}
+
+func measure(g geometry) {
+    fmt.Println(g)
+    fmt.Println(g.area())
+    fmt.Println(g.perim())
+}
+
+
+r := rect{width: 3, height: 4}
+c := circle{radius: 5}
+
+measure(r)
+measure(c)
+
+\end{lstlisting}
+
+\subsubsection{Skládání rozhraní}
+Při vytváření nového rozhraní máme možnost použít již existující rozhraní.
+
+\begin{lstlisting}[caption={Ukázka skládání rozhraní}, captionpos=b]
+type Interface1 interface {
+        method1()
+}
+ 
+type Interface2 interface {
+        Interface1
+        method2()
+}
+ 
+type Type struct{}
+ 
+func (Type) method1() {
+        fmt.Println("Type.method1")
+}
+ 
+func (Type) method2() {
+        fmt.Println("Type.method2")
+}
+ 
+func f1(i Interface2) {
+        i.method1()
+        i.method2()
+}
+
+t := Type{}
+f1(t)
+
+\end{lstlisting}
+
+\subsection{Konstrukce gorutin}
+Takzvané gorutiny slouží v jazyce Go pro vytváření paralelních programů. Klíčové slovo \texttt{go} je vyhrazené pro spouštění gorutin, které ve zjednodušené formě představují vlákna. Za tímto klíčovým slovem se musí nacházet volání nějaké funkce nebo definice funkce, která se má v nové gorutině spustit.
+
+\begin{lstlisting}[caption={Ukázka spouštění gorutin}, captionpos=b]
+
+func heavyTask() {
+    sleep(12 000)
+}
+
+go heavyTask() 
+
+go func() { for { sleep(100) }}
+
+\end{lstlisting}
+
+\subsection{Komunikace mezi gorutinami}
+
+Používání kanálů či front pro asynchronní komunikaci mezi různými částmi vyvíjených aplikací se v dnešní době těší poměrně velké popularitě, a proto je tento obecný koncept hlavním prostředkem pro komunikaci mezi gorutinami.
+
+Kanál (implicitní velikosti 1) pro komunikaci mezi gorutinami se vytváří pomocí použití klíčového slova \texttt{chan} následovaným datovým typem, jehož hodnoty budou kanálem přenášeny. Pro vkládání a vyjmutí hodnoty z kanálu se používá operátor \texttt{<-}. Pozice relativní k identifikátoru kanálu určuje, zdali se do kanálu vkládá nebo se z něj vyjímá.
+
+
+\begin{lstlisting}[caption={Ukázka využití kanálu}, captionpos=b]
+package main
+ 
+import "fmt"
+ 
+func loadValue(id int, out chan int) {
+        fmt.Printf("goroutine %d\n", id)
+ 
+        // simulate a delay
+        sleep(10000)
+        // write into the channel 
+        out <- 10
+}
+ 
+func main() {
+        channel := make(chan int)
+ 
+        go message(1, channel)
+ 
+        fmt.Println("waiting...")
+ 
+        // blocking read 
+        value, status := <-channel
+ 
+        fmt.Printf("received value: %d and status: %t\n", value, status)
+        fmt.Println("main end")
+}
+
+
+\end{lstlisting}
+
+
+
+\subsection{Switch}
+
 
 \end{document}    
