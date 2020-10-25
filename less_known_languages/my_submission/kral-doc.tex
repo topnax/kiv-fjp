@@ -9,6 +9,7 @@
 \usepackage[hidelinks,unicode]{hyperref}
 \usepackage{float}
 \usepackage{listings}
+\usepackage{listings-golang} 
 \usepackage{tikz}
 \usepackage{xcolor}
 \usepackage[final]{pdfpages}
@@ -130,9 +131,11 @@ Koncem roku 2006 začíná tým vývojářů z Google, spolu s Kenem Thompsonem 
 
 Vlastností, která byla při návrhu tohoto jazyka považována za velmi důležitou, byla schopnost jednoduše a elegantně definovat souběžné a paralelní programy. Velkou inspiraci a hlavní myšlenku autoři jazkya Go brali v unixových rourách.
 
-V roce 2009 byl zdrojový kód jazyka Go uvolněn jako open-source, a v roce 2012 byla vydána verze 1.0. S tímto vydáním se začal klást důraz na využití a implementaci tohoto jazyka v projektech Google.
+V roce 2009 byl zdrojový kód jazyka Go uvolněn jako open-source, a v roce 2012 byla vydána verze 1.0. S tímto vydáním se začal klást důraz na využití a implementaci tohoto jazyka v projektech Google. Nejnovější verze je 1.15 z 11.08.2020.
 
 \section{Charakteristiky jazyka}
+
+Při psaní této kapitoly bylo využíváno hlavně oficiální specifikace jazyka Go\footnote{\url{https://golang.org/ref/spec}} a webové stránky \url{https://gobyexample.com/}, kde se nachází užitečné ukázky a vysvětlení základních konstrukcí tohoto jazyka.
 
 \subsection{Formální popis jazyka}
 Gramatika popisující jazyk Go v rozšířené BNF formě je následující:
@@ -156,24 +159,71 @@ Repetition  = "{" Expression "}" .
 Explicitní deklarace typu proměnné není v jazyce Go nutná, jelikož překladač si typ proměnné doplní sám.
 
 
-\begin{lstlisting}[caption={Typ proměnné nemusí být v kódu explicitně deklarován}]
+\begin{lstlisting}[caption={Typ proměnné nemusí být v kódu explicitně deklarován}, captionpos=b]
 i := 42           // i is int
 f := 3.142        // f is float64
 g := 0.867 + 0.5i // g is complex128
 \end{lstlisting}
 
-Pokud opravdu chceme typ explicitně deklarovat, tak je možné použít následující syntaxi:
+\noindent Pokud opravdu chceme typ explicitně deklarovat, tak je možné použít následující syntaxi:
 
-\begin{lstlisting}[caption={Explicitní deklarace typu proměnné}, captionpos=b]
+\begin{lstlisting}[caption={Explicitní deklarace typu proměnné}, captionpos=b, language=Golang]
 var i int = 0
 var text string = "Hello Golang World!"
 \end{lstlisting}
 
 
+\subsection{Nepoužívané proměnné a balíčky}
+Pokud deklarujeme nějakou proměnnou nebo importujeme balíček, který nepoužíváme, tak překlad programu skončí chybou. Pokud je proměnná pojmenována pouze znakem \texttt{_}, tak nemusí být používána nikdy nemusí a program lze přeložit.
+
+
+\subsection{Středníky}
+
+V jazyce Go není ve většině případů nutné používat středníky. Středniky jsou automaticky lexerem doplněny při překladu.
+
+\subsection{Řízení toku programu}
+
+K řízení toku programu jsou v Go používány klíčová slova \texttt{if}, \texttt{for}, \texttt{switch}, \texttt{break} a \texttt{continue}.
+
+Pro definování podmínky pro větvení programu obecně není nutné kulatých závorek kolem výrazu, který se má výkonat.
+
+\begin{lstlisting}[caption={Větvení pomocí \texttt{if} a \texttt{switch}}, captionpos=b, language=Golang]
+a := isEnabled()
+
+if a {
+    // do something
+} else {
+    // do something else
+}
+
+switch time.Now().Weekday() {
+case time.Saturday, time.Sunday:
+    fmt.Println("It's the weekend")
+default:
+    fmt.Println("It's a weekday")
+}
+
+\end{lstlisting}
+
+
+\subsubsection{\texttt{for} jako \texttt{while}}
+V Go chybí klíčové slovo \texttt{while}, místo kterého se používá \texttt{for}.
+\begin{lstlisting}
+for a < 10 {
+    a++
+    fmt.Println("a =", a)
+}
+
+\end{lstlisting}
+
+\subsection{Typ \texttt{rune}}
+
+Tento typ, který zabírá 32 bitů, slouží k uložení jednoho či více unicode znaků.
+
 \subsection{Definice struktur a OOP}
 V jazyce Go není podporován koncept tříd a dědičnosti, ale stejně jako například v jazyce C lze definovat struktury:
 
-\begin{lstlisting}[caption={"Definice struktur"}, captionpos=b]
+\begin{lstlisting}[caption={Definice struktur}, captionpos=b, language=Golang]
 type person struct {
     name string
     age  int
@@ -184,7 +234,7 @@ p := person{name: "Foo", age: 50}
 
 Avšak metody zde jsou implementovány jako funkce u kterých je kromě jména, parametrů a typů návratových hodnot, specifikován i takzvaný \textit{receiver} (příjemce), což je v nějaký datový typ (nejčastěji struktura), nad kterým je tato metoda volána. Příjemcem může být samozřejmě i ukazatel na datový typ.
 
-\begin{lstlisting}[caption={Volání metod nad strukturami}, captionpos=b]
+\begin{lstlisting}[caption={Volání metod nad strukturami}, captionpos=b, language=Golang]
 
 func (p* person) haveBirthday() {
     p.age++
@@ -203,7 +253,7 @@ p.isAdult()         // true
 \subsection{Definice a implementace rozhraní}
 Rozhraní v jazyku Go byla inspirována protokoly, s nimiž se lze setkat například v programovacím jazyku Smalltalk. Jedná se o specifikaci metod, které jsou společné pro entity s nějakou sdílenou vlastností nebo vlastnostmi.
 
-\begin{lstlisting}[caption={Definice rozhraní}, captionpos=b]
+\begin{lstlisting}[caption={Definice rozhraní}, captionpos=b, language=Golang]
 type geometry interface {
     area() float64
     perim() float64
@@ -213,7 +263,7 @@ type geometry interface {
 Na rozdíl od např. jazyku Java se v Go rozhraní implementuje implicitně. Pokud lze nad nějakou strukturou volat stejné metody, jako ty, které jsou definované v nějakém rozhraní, tak tato struktura automaticky dané rozhraní implementuje, a není tedy tak nutné explicitně danou strukturou označit např. klíčovým slovem \texttt{implements}.
 
 
-\begin{lstlisting}[caption={Implementace \texttt{geometry}}, captionpos=b]
+\begin{lstlisting}[caption={Implementace rozhraní \texttt{geometry}}, captionpos=b, language=Golang]
 func (r rect) area() float64 {
     return r.width * r.height
 }
@@ -246,7 +296,7 @@ measure(c)
 \subsubsection{Skládání rozhraní}
 Při vytváření nového rozhraní máme možnost použít již existující rozhraní.
 
-\begin{lstlisting}[caption={Ukázka skládání rozhraní}, captionpos=b]
+\begin{lstlisting}[caption={Ukázka skládání rozhraní}, captionpos=b, language=Golang]
 type Interface1 interface {
         method1()
 }
@@ -279,7 +329,7 @@ f1(t)
 \subsection{Konstrukce gorutin}
 Takzvané gorutiny slouží v jazyce Go pro vytváření paralelních programů. Klíčové slovo \texttt{go} je vyhrazené pro spouštění gorutin, které ve zjednodušené formě představují vlákna. Za tímto klíčovým slovem se musí nacházet volání nějaké funkce nebo definice funkce, která se má v nové gorutině spustit.
 
-\begin{lstlisting}[caption={Ukázka spouštění gorutin}, captionpos=b]
+\begin{lstlisting}[caption={Ukázka spouštění gorutin}, captionpos=b, language=Golang]
 
 func heavyTask() {
     sleep(12 000)
@@ -297,8 +347,9 @@ Používání kanálů či front pro asynchronní komunikaci mezi různými čá
 
 Kanál (implicitní velikosti 1) pro komunikaci mezi gorutinami se vytváří pomocí použití klíčového slova \texttt{chan} následovaným datovým typem, jehož hodnoty budou kanálem přenášeny. Pro vkládání a vyjmutí hodnoty z kanálu se používá operátor \texttt{<-}. Pozice relativní k identifikátoru kanálu určuje, zdali se do kanálu vkládá nebo se z něj vyjímá.
 
+Pokud je kapacita kanálu plná tak operace pro vklad do kanálu je blokující, a je provedena až tehdy, když se v kanálu uvolní místo. Stejně tomu tak je i v případě, pokud vyjímáme z kanálu, který je prázdný. Operace pro vyjmutí je blokující, dokud do kanálu není vložen nějaký prvek.
 
-\begin{lstlisting}[caption={Ukázka využití kanálu}, captionpos=b]
+\begin{lstlisting}[caption={Ukázka využití kanálu}, captionpos=b, language=Golang]
 package main
  
 import "fmt"
@@ -329,9 +380,114 @@ func main() {
 
 \end{lstlisting}
 
+\subsubsection{Klíčové slovo \texttt{select}}
+
+Pomocí klíčového slova \texttt{select} se definuje množina operací vkládání a vyjímání nad kanálami, které se mají provést. Syntaxe je podobná jako pří používání klíčového slova \texttt{switch}, avšak s tím rozdílem, že za klíčovým slovem \texttt{case} se nachází operace nad kanálem, která se má provést. Pokud je některá operace z množiny provedena, tak je spuštěna její větev.
 
 
-\subsection{Switch}
+\begin{lstlisting}[caption={Klíčové slovo \texttt{select}}, captionpos=b, language=Golang]
+import (
+    "fmt"
+    "time"
+)
+c1 := make(chan string)
+c2 := make(chan string)
+
+go func() {
+    time.Sleep(1 * time.Second)
+    c1 <- "first"
+}()
+go func() {
+    time.Sleep(2 * time.Second)
+    c2 <- "second"
+}()
+
+for i := 0; i < 2; i++ {
+    select {
+    case msg1 := <-c1:
+        fmt.Println("received", msg1)
+    case msg2 := <-c2:
+        fmt.Println("received", msg2)
+    }
+}
+\end{lstlisting}
+
+Pokud se přidá větev označená klíčovým slovem \texttt{default}, tak její tělo se provede, pokud operace z definované množiny jsou blokující.
+
+\subsection{Vrácení většího množství hodnot z funkce}
+
+V Go je možné, aby funkce vracela více než pouze jednu hodnotu. Tímto lze omezit zbytečné definování obalovacích struktur (např. struktura o dvou hodnotách).
+
+
+\begin{lstlisting}[caption={Funkce vracející dvě hodnoty}, captionpos=b, language=Golang]
+func swap(a int, b int) (int, int) {
+        return b, a
+}
+ 
+x := 1
+y := 2
+
+z, w := swap(x, y)
+fmt.Println("z =", z, "w =", w)
+\end{lstlisting}
+
+\subsection{Klíčové slovo \texttt{defer}}
+
+Toto klíčové slovo se používá tehdy, když chceme provést nějaké volání až později při běhu programu. Typicky se jedná o volání, která uvolňují použitou paměť nebo např. uzavírají ukazatele na soubory. Zjednodušeně se dá říct, že se \texttt{defer} používá tam, kde by se v jiných jazycích používalo klíčové slovo \texttt{finally} nebo \texttt{ensure}.
+
+
+
+\begin{lstlisting}[caption={Klíčové slovo \texttt{defer}}, captionpos=b, language=Golang]
+
+import (
+    "os"
+)
+
+func createFile(p string) *os.File {
+    f, err := os.Create(p)
+    if err != nil {
+        panic(err)
+    }
+    return f
+}
+
+func writeFile(f *os.File) {
+    fmt.Fprintln(f, "data")
+}
+
+func closeFile(f *os.File) {
+    err := f.Close()
+
+    if err != nil {
+        os.Exit(1)
+    }
+}
+
+f := createFile("/tmp/defer.txt")
+// thanks to defer closeFile will get called after writeFile even if writeFile panics
+defer closeFile(f)
+writeFile(f)
+\end{lstlisting}
+
+
+\section{Dokumentace a podpora ze strany vývojářů}
+
+Dokumentace je při vývoji softwaru nesmírně důležitá, a prakticky žádný vývojář se bez ní neobejde. Měla by být obsáhlá, ale zároveň i čitelná a precizní. Vývojáři Go si toto uvědomují, a dokumentace tohoto programovacího jazyka je na velice vysoké úrovni\footnote{\url{https://golang.org/doc/}}. K tvorbě dokumentace je dostupný i program \texttt{godoc}, který dokáže generovat dokumentaci přímo z kódu.
+
+Jazyk Go a jeho standardní knihovna je svými vývojáři hojně podporována, kdy jazyk stále aktivně vyvíjí, opravují chyby, naslouchají komunitě, a zabývají se navrhy a připomínkami. Hojná interakce s komunitou je z velké části způsobena tím, že Go je open-source (zrcadlo oficiálního repozitáře \url{https://github.com/golang/go}). 
+
+Za poslední dva roky byly vydány 4 nové \textit{minor} verzí - Go se drží půlročního cyklu vydávání nových verzí.
+
+\section{}
+
+\section{Vlastní zkušenost}
+
+S jazykem Go mám vlastní zkušenost ze dvou střědně velkých projektů - semestrálních prací z předmětů KIV/UPS a KIV/ZOS.
+
+Při používání tohoto jazyka a jeho ekosystému jsem nejvíc ocenil stručnost, jednoduchost tohoto jazyka a výkon přeložených programů. Vlastností, která je pro mě při výběru programovacího jazyka pro nový projekt velmi důležitá, je jak dobře jeho ekosystém podporuje testování. Narozdíl od jiných nízkoúrovňových jazyků (např. C nebo C++) je podpora testů přímo ve standardní knihovně, a jejich psaní je rychlé a bezproblémové.
+
+Velkou výhodou je i existence speciálního IDE \textbf{GoLand} od společnosti \textbf{JetBrains} pro jazyk Go, která zaručuje rychlý a jednoduchý přechod na používání tohoto
+jazyka, pokud již IDE od této společnosti používáte.
 
 
 \end{document}    
