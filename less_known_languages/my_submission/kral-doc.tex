@@ -6,7 +6,11 @@
 \usepackage[T1]{fontenc}
 \usepackage{graphicx}
 \usepackage{amsmath}
-\usepackage[hidelinks,unicode]{hyperref}
+\usepackage[hidelinks,unicode,
+            colorlinks = true,
+            linkcolor = black,
+            urlcolor  = blue
+]{hyperref}
 \usepackage{float}
 \usepackage{listings}
 \usepackage{listings-golang} 
@@ -160,9 +164,9 @@ Explicitní deklarace typu proměnné není v jazyce Go nutná, jelikož překla
 
 
 \begin{lstlisting}[caption={Typ proměnné nemusí být v kódu explicitně deklarován}, captionpos=b]
-i := 42           // i is int
-f := 3.142        // f is float64
-g := 0.867 + 0.5i // g is complex128
+i := 42             // i is int
+f := 3.142          // f is float64
+g := 0.867 + 0.5i   // g is complex128
 \end{lstlisting}
 
 \noindent Pokud opravdu chceme typ explicitně deklarovat, tak je možné použít následující syntaxi:
@@ -174,7 +178,7 @@ var text string = "Hello Golang World!"
 
 
 \subsection{Nepoužívané proměnné a balíčky}
-Pokud deklarujeme nějakou proměnnou nebo importujeme balíček, který nepoužíváme, tak překlad programu skončí chybou. Pokud je proměnná pojmenována pouze znakem \texttt{_}, tak nemusí být používána nikdy nemusí a program lze přeložit.
+Pokud deklarujeme nějakou proměnnou nebo importujeme balíček, který nepoužíváme, tak překlad programu skončí chybou. Pokud je proměnná pojmenována pouze znakem \texttt{_}, tak nemusí být používána nikdy nemusí, a program lze přeložit.
 
 
 \subsection{Středníky}
@@ -232,7 +236,7 @@ type person struct {
 p := person{name: "Foo", age: 50}
 \end{lstlisting}
 
-Avšak metody zde jsou implementovány jako funkce u kterých je kromě jména, parametrů a typů návratových hodnot, specifikován i takzvaný \textit{receiver} (příjemce), což je v nějaký datový typ (nejčastěji struktura), nad kterým je tato metoda volána. Příjemcem může být samozřejmě i ukazatel na datový typ.
+Avšak metody jsou implementovány jako funkce u kterých je kromě jména, parametrů a typů návratových hodnot, specifikován i takzvaný \textit{receiver} (příjemce), což je nějaký datový typ (nejčastěji struktura), nad kterým je tato metoda volána. Příjemcem může být samozřejmě i ukazatel na datový typ.
 
 \begin{lstlisting}[caption={Volání metod nad strukturami}, captionpos=b, language=Golang]
 
@@ -283,20 +287,16 @@ func measure(g geometry) {
     fmt.Println(g.area())
     fmt.Println(g.perim())
 }
-
-
 r := rect{width: 3, height: 4}
 c := circle{radius: 5}
-
 measure(r)
 measure(c)
-
 \end{lstlisting}
 
 \subsubsection{Skládání rozhraní}
 Při vytváření nového rozhraní máme možnost použít již existující rozhraní.
 
-\begin{lstlisting}[caption={Ukázka skládání rozhraní}, captionpos=b, language=Golang]
+\begin{lstlisting}[caption={Skládání rozhraní}, captionpos=b, language=Golang]
 type Interface1 interface {
         method1()
 }
@@ -327,9 +327,9 @@ f1(t)
 \end{lstlisting}
 
 \subsection{Konstrukce gorutin}
-Takzvané gorutiny slouží v jazyce Go pro vytváření paralelních programů. Klíčové slovo \texttt{go} je vyhrazené pro spouštění gorutin, které ve zjednodušené formě představují vlákna. Za tímto klíčovým slovem se musí nacházet volání nějaké funkce nebo definice funkce, která se má v nové gorutině spustit.
+Takzvané \textit{gorutiny} slouží v jazyce Go pro vytváření paralelních programů. Klíčové slovo \texttt{go} je vyhrazené pro spouštění gorutin, které ve zjednodušené formě představují vlákna. Za tímto klíčovým slovem se musí nacházet volání nějaké funkce nebo definice funkce, která se má v nové gorutině spustit.
 
-\begin{lstlisting}[caption={Ukázka spouštění gorutin}, captionpos=b, language=Golang]
+\begin{lstlisting}[caption={Možnosti spuštění gorutin}, captionpos=b, language=Golang]
 
 func heavyTask() {
     sleep(12 000)
@@ -347,9 +347,9 @@ Používání kanálů či front pro asynchronní komunikaci mezi různými čá
 
 Kanál (implicitní velikosti 1) pro komunikaci mezi gorutinami se vytváří pomocí použití klíčového slova \texttt{chan} následovaným datovým typem, jehož hodnoty budou kanálem přenášeny. Pro vkládání a vyjmutí hodnoty z kanálu se používá operátor \texttt{<-}. Pozice relativní k identifikátoru kanálu určuje, zdali se do kanálu vkládá nebo se z něj vyjímá.
 
-Pokud je kapacita kanálu plná tak operace pro vklad do kanálu je blokující, a je provedena až tehdy, když se v kanálu uvolní místo. Stejně tomu tak je i v případě, pokud vyjímáme z kanálu, který je prázdný. Operace pro vyjmutí je blokující, dokud do kanálu není vložen nějaký prvek.
+Pokud je kapacita kanálu plná, tak operace pro vklad do kanálu je blokující, a je provedena až tehdy, když se v kanálu uvolní místo. Stejně tomu tak je i v případě, pokud vyjímáme z kanálu, který je prázdný. Operace pro vyjmutí je blokující, dokud do kanálu není vložen nějaký prvek.
 
-\begin{lstlisting}[caption={Ukázka využití kanálu}, captionpos=b, language=Golang]
+\begin{lstlisting}[caption={Využití kanálu}, captionpos=b, language=Golang]
 package main
  
 import "fmt"
@@ -476,9 +476,16 @@ Dokumentace je při vývoji softwaru nesmírně důležitá, a prakticky žádn�
 
 Jazyk Go a jeho standardní knihovna je svými vývojáři hojně podporována, kdy jazyk stále aktivně vyvíjí, opravují chyby, naslouchají komunitě, a zabývají se navrhy a připomínkami. Hojná interakce s komunitou je z velké části způsobena tím, že Go je open-source (zrcadlo oficiálního repozitáře \url{https://github.com/golang/go}). 
 
-Za poslední dva roky byly vydány 4 nové \textit{minor} verzí - Go se drží půlročního cyklu vydávání nových verzí.
+Za poslední dva roky byly vydány 4 nové \textit{minor} verze - Go se drží půlročního cyklu vydávání nových verzí.
 
-\section{}
+\section{Využití jazyka}
+
+Dle Tiobe indexu je Go 14. nejpoužívanější jazyk\footnote{\url{https://www.tiobe.com/tiobe-index/}}. V ročním přehledu služby GitHub\footnote{\url{https://octoverse.github.com/}} se tento jazyk objevuje v seznamu nejrychleji rostoucích jazyků.
+
+V jazyce Go jsou například napsány v dnešní době hojně používané technologie Docker\footnote{\url{https://www.docker.com/}} a Kubernetes\footnote{\url{https://kubernetes.io/}}. Dále i software pro tvorbu statických webových stránek Hugo\footnote{\url{https://gohugo.io/}} nebo databázový systém InfluxDB\footnote{\url{https://www.influxdata.com/}}.
+
+Nejvyšší využití tedy jazyk Go nachází v software, kde se klade důraz na výkon, a bývá považován za alternativu k jazykům C, C++ nebo Rust.
+
 
 \section{Vlastní zkušenost}
 
